@@ -1,108 +1,52 @@
-buildscript {
-    repositories {
-        maven { url = 'https://files.minecraftforge.net/maven' }
-        jcenter()
-        mavenCentral()
-    }
-    dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
-    }
-}
-apply plugin: 'net.minecraftforge.gradle'
-apply plugin: 'eclipse'
-apply plugin: 'maven-publish'
-
-version = 'Release Candidate 1'
-group = 'com.github.Tomatosoupcodes.mc_ost_plus' 
-archivesBaseName = 'mc_ost_plus'
-
-sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
-
-println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
-minecraft {
-    mappings channel: 'snapshot', version: '20201028-1.16.3'
-    // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
-    
-    // accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
-    runs {
-        client {
-            workingDirectory project.file('run')
-
-            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
-
-            property 'forge.logging.console.level', 'debug'
-
-            mods {
-                mc_ost_plus {
-                    source sourceSets.main
-                }
-            }
-        }
-
-        server {
-            workingDirectory project.file('run')
-
-            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
-
-            property 'forge.logging.console.level', 'debug'
-
-            mods {
-                mc_ost_plus {
-                    source sourceSets.main
-                }
-            }
-        }
-
-        data {
-            workingDirectory project.file('run')
-
-            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
-
-            property 'forge.logging.console.level', 'debug'
-
-            args '--mod', 'mc_ost_plus', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
-
-            mods {
-                mc_ost_plus {
-                    source sourceSets.main
-                }
-            }
-        }
-    }
+plugins {
+	id 'fabric-loom' version '0.11-SNAPSHOT'
 }
 
-sourceSets.main.resources { srcDir 'src/generated/resources' }
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
+
+group = mod_group
+archivesBaseName = mod_name
+version = mod_version
+
+repositories {
+}
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.16.4-35.1.4'
+	// Fabric API
+	modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
+
+	// Fabric Loader
+	modImplementation "net.fabricmc:fabric-loader:${loader_version}"
+
+	// Minecraft
+	minecraft "com.mojang:minecraft:${minecraft_version}"
+
+	// Official Mojang Mappings
+	mappings loom.officialMojangMappings()
 }
 
+processResources {
+	inputs.property 'version', project.version
+
+	filesMatching 'fabric.mod.json', {
+		expand 'fabric_version': fabric_version,
+		       'loader_version': loader_version,
+		       'minecraft_version': minecraft_version,
+		       'version': version
+	}
+}
+
+java {
+	withSourcesJar()
+}
 
 jar {
-    manifest {
-        attributes([
-            "Specification-Title": "minecraft-ost-plus",
-            "Specification-Vendor": "tomatosoupcodes",
-            "Specification-Version": "1.0.0",
-            "Implementation-Title": "Extended-Soundtrack,
-            "Implementation-Version": "${version}",
-            "Implementation-Vendor" :"tomatosoupcodes",
-            "Implementation-Timestamp": new Date().format("2021-11-15'T'HH:mm:ssZ")
-        ])
-    }
+	from 'LICENSE', {
+		rename { "${it}_${project.archivesBaseName}"}
+	}
 }
 
-jar.finalizedBy('reobfJar') 
-
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            artifact jar
-        }
-    }
-    repositories {
-        maven {
-            url "file:///${project.projectDir}/mcmodsrepo"
-        }
-    }
+tasks.withType(JavaCompile).configureEach {
+	it.options.release = 17
 }

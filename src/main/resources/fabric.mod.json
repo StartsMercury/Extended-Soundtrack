@@ -1,0 +1,37 @@
+{
+	"schemaVersion": 1,
+	"id": "mc_ost_plus",
+	"version": "${version}",
+
+	"name": "Minecraft Extended Soundtrack",
+	"description": "This mod adds all C418's unused music from Volume Alpha and Beta into the game.",
+	"authors": [
+		"Reed_4_2",
+		"Tomatosoupcodes",
+		"Joeman420",
+		"StartsMercury"
+	],
+	"contact": {
+		"sources": "https://github.com/StartsMercury/Extended-Soundtrack"
+	},
+
+	"license": "GNU GPL 3.0",
+	"icon": "assets/mc_ost_plus/icon.png",
+
+	"environment": "*",
+	"entrypoints": {
+		"client": [
+			"com.github.Tomatosoupcodes.mc_ost_plus.entrypoint.MinecraftOstPlusClientMod"
+		]
+	},
+	"mixins": [
+		"mc_ost_plus.mixins.json"
+	],
+
+	"depends": {
+		"fabric": ">=${fabric_version}",
+		"fabricloader": ">=${loader_vbersion}",
+		"java": ">=17",
+		"minecraft": ">=${minecraft_version}"
+	}
+}
